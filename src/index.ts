@@ -1,6 +1,6 @@
 import express from 'express'
 import router from '~/routes/users.router'
-import {run} from './services/database.service'
+import databaseService from './services/database.services'
 const app = express()
 require('dotenv').config();
 
@@ -9,7 +9,7 @@ const port = process.env.PORT;
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use('/api', router)
-run().catch(console.dir)
+databaseService.connect()
 
 app.listen(port, () => {
   console.log('Run')

@@ -1,11 +1,10 @@
 import {Router} from "express";
-import {Home} from '~/controllers/users.controllers'
-import {HomeMiddle} from '~/middlewares/users.middlewares'
+import {loginController, registerController} from "~/controllers/users.controllers";
+import {loginValidator} from "~/middlewares/users.middlewares";
 
 const router = Router()
 
-router.post('/', HomeMiddle, Home)
-
-router.get('/', HomeMiddle, Home)
+router.post('/login', loginValidator,loginController)
+router.post('/register', registerController)
 
 export default router
