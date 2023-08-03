@@ -16,9 +16,9 @@ export const loginController = (req: Request, res: Response) => {
 }
 
 export const registerController = async (req: Request, res: Response) => {
-  const { email, password } = req.body
+  const { name, email, password, date } = req.body
   try {
-    const result = await usersService.register({ email, password })
+    const result = await usersService.register({ name, email, password })
     // await databaseService.users.find({})
     return res.json({
       message: 'Register success',
