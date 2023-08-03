@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from 'express'
 import { checkSchema } from 'express-validator'
 import { validate } from '~/utils/validation'
 import userServices from '~/services/user.services'
 import databaseService from '~/services/database.services'
+import { hashPassword } from '~/utils/crypto'
 
 export const loginValidator = validate(
   checkSchema({
@@ -12,7 +12,7 @@ export const loginValidator = validate(
       trim: true,
       custom: {
         options: async (value, { req }) => {
-          const user = await databaseService.users.findOne({ email: value })
+          const user = await databaseService.users.findOne({ email: value, password: hashPassword(req.body.password) })
           if (user === null) {
             throw new Error('User not found')
           }
@@ -132,3 +132,5 @@ export const registerValidator = validate(
     }
   })
 )
+
+export const logoutValidator = validate(checkSchema({}))
