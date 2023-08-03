@@ -1,17 +1,49 @@
 import { Request, Response, NextFunction } from 'express'
 import { checkSchema } from 'express-validator'
 import { validate } from '~/utils/validation'
-import userServices from "~/services/user.services";
+import userServices from '~/services/user.services'
+import databaseService from '~/services/database.services'
 
-export const loginValidator = (req: Request, res: Response, next: NextFunction) => {
-  const { email, password } = req.body
-  if (!email || !password) {
-    return res.status(400).json({
-      error: 'Missing email or password'
-    })
-  }
-  next()
-}
+export const loginValidator = validate(
+  checkSchema({
+    email: {
+      notEmpty: true,
+      isEmail: true,
+      trim: true,
+      custom: {
+        options: async (value, { req }) => {
+          const user = await databaseService.users.findOne({ email: value })
+          if (user === null) {
+            throw new Error('User not found')
+          }
+          req.user = user
+          return true
+        }
+      }
+    },
+    password: {
+      notEmpty: true,
+      isString: true,
+      isLength: {
+        options: {
+          min: 6,
+          max: 50
+        }
+      },
+      isStrongPassword: {
+        options: {
+          minLength: 6,
+          minLowercase: 1,
+          minUppercase: 1,
+          minNumbers: 1,
+          minSymbols: 1
+        },
+        errorMessage:
+          'Password must be at least 6 characters long and contain at least 1 lowercase letter, 1 uppercase letter, 1 number, and 1 symbol'
+      }
+    }
+  })
+)
 
 export const registerValidator = validate(
   checkSchema({
@@ -30,11 +62,11 @@ export const registerValidator = validate(
       notEmpty: true,
       isEmail: true,
       trim: true,
-        custom: {
-          options: async (value) => {
-            const result = await userServices.checkEmailExist(value)
-            if(result) {
-              throw new Error('Email is exists')
+      custom: {
+        options: async (value) => {
+          const result = await userServices.checkEmailExist(value)
+          if (result) {
+            throw new Error('Email is exists')
           }
           return true
         }

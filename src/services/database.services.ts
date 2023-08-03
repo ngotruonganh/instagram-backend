@@ -1,5 +1,5 @@
-import {Collection, Db, MongoClient} from 'mongodb'
-import User from "~/models/schemas/User.schema"
+import { Collection, Db, MongoClient } from 'mongodb'
+import User from '~/models/schemas/User.schema'
 import { config } from 'dotenv'
 config()
 const uri = `mongodb+srv://${process.env.DB_USER_NAME}:${process.env.DB_PASSWORD}@${process.env.DB_NAME}.rgkqiy7.mongodb.net/?retryWrites=true&w=majority`
