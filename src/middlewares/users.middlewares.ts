@@ -166,7 +166,7 @@ export const refreshTokenValidator = validate(
             }
             req.decoded_refresh_token = decoded_refresh_token
           } catch (error) {
-            throw new Error('loi refresh')
+            throw new Error('Loi refresh')
           }
         }
       }
