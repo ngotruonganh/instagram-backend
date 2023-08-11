@@ -1,20 +1,19 @@
-import express from 'express'
-import { Request, Response, NextFunction } from 'express'
-import router from '~/routes/users.router'
-import databaseService from './services/database.services'
-const app = express()
+import express, { Request, Response, NextFunction } from 'express'
 import { config } from 'dotenv'
+import databaseService from './services/database.services'
+import userRouter from '~/routes/users.router'
+import {defaultErrorHandler} from "~/middlewares/error.middleware";
+
+const app = express()
 config()
 
 const port = process.env.PORT
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.use('/api/v1', router)
+app.use('/api/v1/users', userRouter)
 databaseService.connect()
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  res.status(400).json({ error: 'error' })
-})
+app.use(defaultErrorHandler)
 
 app.listen(port, () => {
   console.log('Run')

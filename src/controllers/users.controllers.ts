@@ -1,9 +1,9 @@
 import { Request, Response } from 'express'
-import User from '~/models/schemas/User.schema'
-import { ParamsDictionary } from 'express-serve-static-core'
-import usersService from '~/services/user.services'
-import { RegisterReqBody } from '~/models/requsets/User.requests'
 import { ObjectId } from 'mongodb'
+import { ParamsDictionary } from 'express-serve-static-core'
+import User from '~/models/schemas/User.schema'
+import { RegisterReqBody } from '~/models/requsets/User.requests'
+import usersService from '~/services/user.services'
 
 export const loginController = async (req: Request, res: Response) => {
   const user = req.user as User
@@ -16,18 +16,15 @@ export const loginController = async (req: Request, res: Response) => {
 }
 
 export const registerController = async (req: Request<ParamsDictionary, any, RegisterReqBody>, res: Response) => {
-  try {
-    const result = await usersService.register(req.body)
-    return res.json({
-      message: 'Register success',
-      result
-    })
-  } catch (error) {
-    return res.status(400).json({
-      message: 'Register failed',
-      error
-    })
-  }
+  const result = await usersService.register(req.body)
+  return res.json({
+    message: 'Register success',
+    result
+  })
 }
 
-export const logoutController = async (req: Request, res: Response) => {}
+export const logoutController = async (req: Request, res: Response) => {
+  const { refresh_token } = req.body
+  const result = await usersService.logout(refresh_token)
+  return res.json(result)
+}

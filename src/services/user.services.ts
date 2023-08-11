@@ -1,12 +1,13 @@
+import { ObjectId } from 'mongodb'
+import { config } from 'dotenv'
 import User from '~/models/schemas/User.schema'
-import databaseService from '~/services/database.services'
+import RefreshToken from '~/models/schemas/RefreshToken.schema'
 import { RegisterReqBody } from '~/models/requsets/User.requests'
+import { TokenType } from '~/constants/enums'
+import databaseService from '~/services/database.services'
 import { hashPassword } from '~/utils/crypto'
 import { signToken } from '~/utils/jwt'
-import { TokenType } from '~/constants/enums'
-import { config } from 'dotenv'
-import { ObjectId } from 'mongodb'
-import RefreshToken from '~/models/schemas/RefreshToken.schema'
+
 config()
 
 class UsersService {
@@ -61,6 +62,12 @@ class UsersService {
     return {
       access_token,
       refresh_token
+    }
+  }
+  async logout(refresh_token: string) {
+    await databaseService.refreshTokens.deleteOne({ token: refresh_token })
+    return {
+      message: 'Logout success'
     }
   }
   async checkEmailExist(email: string) {

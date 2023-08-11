@@ -1,12 +1,18 @@
 import { Router } from 'express'
 import { loginController, logoutController, registerController } from '~/controllers/users.controllers'
-import { loginValidator, logoutValidator, registerValidator } from '~/middlewares/users.middlewares'
-import { wrapHandleError } from '~/utils/handler'
+import {
+  accessTokenValidator,
+  loginValidator,
+  refreshTokenValidator,
+  registerValidator
+} from '~/middlewares/users.middlewares'
+import { wrapHandleError } from '~/utils/handlerError'
 
-const router = Router()
+const userRouter = Router()
 
-router.post('/users/login', loginValidator, loginController)
-router.post('/users/register', registerValidator, wrapHandleError(registerController))
-router.post('/users/logout', logoutValidator, wrapHandleError(logoutController))
+userRouter.post('/login', loginValidator, wrapHandleError(loginController))
+userRouter.post('/register', registerValidator, wrapHandleError(registerController))
+userRouter.post('/logout', accessTokenValidator, refreshTokenValidator, wrapHandleError(logoutController))
+// userRouter.post('/verify-email', )
 
-export default router
+export default userRouter
