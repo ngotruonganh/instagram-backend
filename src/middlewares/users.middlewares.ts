@@ -7,7 +7,8 @@ import { verifyToken } from '~/utils/jwt'
 import { ErrorWithStatus } from '~/models/Error'
 
 export const loginValidator = validate(
-  checkSchema({
+  checkSchema(
+    {
       email: {
         notEmpty: true,
         isEmail: true,
@@ -33,11 +34,13 @@ export const loginValidator = validate(
         errorMessage: 'Password can not empty'
       }
     },
-    ['body'])
+    ['body']
+  )
 )
 
 export const registerValidator = validate(
-  checkSchema({
+  checkSchema(
+    {
       name: {
         notEmpty: true,
         isString: true,
@@ -107,7 +110,7 @@ export const registerValidator = validate(
         custom: {
           options: (value, { req }) => {
             if (value !== req.body.password) {
-              throw new ErrorWithStatus({message: 'Password confirmation does not match password', status: 401})
+              throw new ErrorWithStatus({ message: 'Password confirmation does not match password', status: 401 })
             }
             return true
           }
@@ -122,54 +125,60 @@ export const registerValidator = validate(
         }
       }
     },
-    ['body'])
+    ['body']
+  )
 )
 
 export const accessTokenValidator = validate(
-  checkSchema({
-    Authorization: {
-      notEmpty: {
-        errorMessage: 'access token empty'
-      },
-      custom: {
-        options: async (value: string, { req }) => {
-          const access_token = value.split(' ')[1]
+  checkSchema(
+    {
+      Authorization: {
+        notEmpty: {
+          errorMessage: 'access token empty'
+        },
+        custom: {
+          options: async (value: string, { req }) => {
+            const access_token = value.split(' ')[1]
             console.log(access_token)
-          if (!access_token) {
-            throw new Error('error')
+            if (!access_token) {
+              throw new Error('error')
+            }
+            const decoded_authorization = await verifyToken({ token: access_token })
+            req.decoded_authorization = decoded_authorization
+            return true
           }
-          const decoded_authorization = await verifyToken({ token: access_token })
-          req.decoded_authorization = decoded_authorization
-          return true
         }
       }
-    }
-  },
-    ['headers'])
+    },
+    ['headers']
+  )
 )
 
 export const refreshTokenValidator = validate(
-  checkSchema({
-    refresh_token: {
-      notEmpty: {
-        errorMessage: 'can not empty'
-      },
-      custom: {
-        options: async (value: string, { req }) => {
-          try {
-            const [decoded_refresh_token, refresh_token] = await Promise.all([
-              verifyToken({ token: value }),
-              databaseService.refreshTokens.findOne({ token: value })
-            ])
-            if(refresh_token === null ) {
-              throw new Error("Error")
+  checkSchema(
+    {
+      refresh_token: {
+        notEmpty: {
+          errorMessage: 'can not empty'
+        },
+        custom: {
+          options: async (value: string, { req }) => {
+            try {
+              const [decoded_refresh_token, refresh_token] = await Promise.all([
+                verifyToken({ token: value }),
+                databaseService.refreshTokens.findOne({ token: value })
+              ])
+              if (refresh_token === null) {
+                throw new Error('Error')
+              }
+              req.decoded_refresh_token = decoded_refresh_token
+            } catch (error) {
+              throw new Error('Loi refresh')
             }
-            req.decoded_refresh_token = decoded_refresh_token
-          } catch (error) {
-            throw new Error('Loi refresh')
           }
         }
       }
-    }
-  }, ['body'])
+    },
+    ['body']
+  )
 )

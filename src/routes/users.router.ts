@@ -4,6 +4,7 @@ import {
   registerController,
   logoutController,
   getAccountController,
+  getUserController
 } from '~/controllers/users.controllers'
 import {
   accessTokenValidator,
@@ -19,6 +20,7 @@ userRouter.post('/login', loginValidator, wrapHandleError(loginController))
 userRouter.post('/register', registerValidator, wrapHandleError(registerController))
 userRouter.post('/logout', accessTokenValidator, refreshTokenValidator, wrapHandleError(logoutController))
 // userRouter.post('/verify-email', )
-userRouter.get('/user', accessTokenValidator, wrapHandleError(getAccountController))
+userRouter.get('/account', accessTokenValidator, wrapHandleError(getAccountController))
+userRouter.get('/:userid', wrapHandleError(getUserController))
 
 export default userRouter

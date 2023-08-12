@@ -2,7 +2,7 @@ import express, { Request, Response, NextFunction } from 'express'
 import { config } from 'dotenv'
 import databaseService from './services/database.services'
 import userRouter from '~/routes/users.router'
-import {defaultErrorHandler} from "~/middlewares/error.middleware";
+import { defaultErrorHandler } from '~/middlewares/error.middleware'
 
 const app = express()
 config()
