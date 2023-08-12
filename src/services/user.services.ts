@@ -70,7 +70,7 @@ class UsersService {
       message: 'Logout success'
     }
   }
-  async getUser(user_id: string) {
+  async getAccount(user_id: string) {
     const user = await databaseService.users.findOne(
       { _id: new ObjectId(user_id) },
       {

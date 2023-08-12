@@ -29,9 +29,9 @@ export const logoutController = async (req: Request, res: Response) => {
   return res.json(result)
 }
 
-export const getUserController = async (req: Request, res: Response, next: NextFunction) => {
+export const getAccountController = async (req: Request, res: Response, next: NextFunction) => {
   const { user_id } = req.decoded_authorization as TokenPayload
-  const user = await usersService.getUser(user_id)
+  const user = await usersService.getAccount(user_id)
   return res.json({
     message: "Get user success",
     result: user

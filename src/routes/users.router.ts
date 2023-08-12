@@ -1,5 +1,10 @@
 import { Router } from 'express'
-import {getUserController, loginController, logoutController, registerController} from '~/controllers/users.controllers'
+import {
+  loginController,
+  registerController,
+  logoutController,
+  getAccountController,
+} from '~/controllers/users.controllers'
 import {
   accessTokenValidator,
   loginValidator,
@@ -14,6 +19,6 @@ userRouter.post('/login', loginValidator, wrapHandleError(loginController))
 userRouter.post('/register', registerValidator, wrapHandleError(registerController))
 userRouter.post('/logout', accessTokenValidator, refreshTokenValidator, wrapHandleError(logoutController))
 // userRouter.post('/verify-email', )
-userRouter.get('/user', accessTokenValidator, wrapHandleError(getUserController))
+userRouter.get('/user', accessTokenValidator, wrapHandleError(getAccountController))
 
 export default userRouter
