@@ -3,18 +3,22 @@ import { config } from 'dotenv'
 import databaseService from './services/database.services'
 import userRouter from '~/routes/users.router'
 import { defaultErrorHandler } from '~/middlewares/error.middleware'
-
+import cors from  'cors'
 const app = express()
+
 config()
 
 const port = process.env.PORT
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+
+app.use(cors())
 app.use('/api/v1/users', userRouter)
+
 databaseService.connect()
 app.use(defaultErrorHandler)
 
 app.listen(port, () => {
-  console.log('Run')
+  console.log('Run', port)
 })
