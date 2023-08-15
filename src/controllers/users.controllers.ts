@@ -11,7 +11,7 @@ export const loginController = async (req: Request, res: Response) => {
   const result = await usersService.login(user_id.toString())
   return res.json({
     message: 'Login success',
-    result
+    result: result
   })
 }
 
@@ -19,14 +19,17 @@ export const registerController = async (req: Request<ParamsDictionary, any, Reg
   const result = await usersService.register(req.body)
   return res.json({
     message: 'Register success',
-    result
+    result: result
   })
 }
 
 export const logoutController = async (req: Request, res: Response) => {
   const { refresh_token } = req.body
   const result = await usersService.logout(refresh_token)
-  return res.json(result)
+  return res.json({
+    message: 'Logout success',
+    result: result
+  })
 }
 
 export const getAccountController = async (req: Request, res: Response, next: NextFunction) => {
