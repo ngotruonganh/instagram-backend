@@ -1,17 +1,17 @@
 import { Router } from 'express'
 import {
+  accessTokenValidator,
+  loginValidator,
+  refreshTokenValidator,
+  registerValidator
+} from '~/middlewares/users.middlewares'
+import {
   loginController,
   registerController,
   logoutController,
   getAccountController,
   getUserController
 } from '~/controllers/users.controllers'
-import {
-  accessTokenValidator,
-  loginValidator,
-  refreshTokenValidator,
-  registerValidator
-} from '~/middlewares/users.middlewares'
 import { wrapHandleError } from '~/utils/handlerError'
 
 const userRouter = Router()

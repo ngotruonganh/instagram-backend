@@ -43,7 +43,7 @@ export const getAccountController = async (req: Request, res: Response, next: Ne
 
 export const getUserController = async (req: Request, res: Response, next: NextFunction) => {
   const { userid } = req.params
-  const user = await  usersService.getAccount(userid)
+  const user = await usersService.getAccount(userid)
   return res.json({
     message: 'Get user success',
     result: user

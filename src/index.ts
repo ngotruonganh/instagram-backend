@@ -2,8 +2,9 @@ import express, { Request, Response, NextFunction } from 'express'
 import { config } from 'dotenv'
 import databaseService from './services/database.services'
 import userRouter from '~/routes/users.router'
-import { defaultErrorHandler } from '~/middlewares/error.middleware'
-import cors from  'cors'
+import { defaultErrorHandler } from '~/middlewares/error.middlewares'
+import cors from 'cors'
+import postRouter from '~/routes/posts.router'
 const app = express()
 
 config()
@@ -15,6 +16,8 @@ app.use(express.urlencoded({ extended: true }))
 
 app.use(cors())
 app.use('/api/v1/users', userRouter)
+
+app.use('/api/v1/posts', postRouter)
 
 databaseService.connect()
 app.use(defaultErrorHandler)
