@@ -5,6 +5,8 @@ import databaseService from '~/services/database.services'
 import { hashPassword } from '~/utils/crypto'
 import { verifyToken } from '~/utils/jwt'
 import { ErrorWithStatus } from '~/models/Error'
+import * as process from 'process'
+import { Request } from 'express'
 
 export const loginValidator = validate(
   checkSchema(
@@ -13,7 +15,7 @@ export const loginValidator = validate(
         notEmpty: true,
         isEmail: true,
         trim: true,
-        errorMessage: 'email can not empty',
+        errorMessage: 'Email can not empty',
         custom: {
           options: async (value, { req }) => {
             const user = await databaseService.users.findOne({
@@ -133,18 +135,22 @@ export const accessTokenValidator = validate(
   checkSchema(
     {
       Authorization: {
-        notEmpty: {
-          errorMessage: 'access token empty'
-        },
         custom: {
           options: async (value: string, { req }) => {
-            const access_token = value.split(' ')[1]
-            console.log(access_token)
+            const access_token = (value || '').split(' ')[1]
             if (!access_token) {
-              throw new Error('error')
+              console.log('loi ngay !access token')
+              throw new Error('Loi')
             }
-            const decoded_authorization = await verifyToken({ token: access_token })
-            req.decoded_authorization = decoded_authorization
+            try {
+              const decoded_authorization = await verifyToken({
+                token: access_token,
+                secretOrPublicKey: process.env.JWT_SECRET_ACCESS_TOKEN as string
+              })
+              req.decoded_authorization = decoded_authorization
+            } catch {
+              throw new Error('Loi decode')
+            }
             return true
           }
         }
@@ -159,13 +165,13 @@ export const refreshTokenValidator = validate(
     {
       refresh_token: {
         notEmpty: {
-          errorMessage: 'can not empty'
+          errorMessage: 'Can not empty'
         },
         custom: {
           options: async (value: string, { req }) => {
             try {
               const [decoded_refresh_token, refresh_token] = await Promise.all([
-                verifyToken({ token: value }),
+                verifyToken({ token: value, secretOrPublicKey: process.env.JWT_SECRET_REFRESH_TOKEN as string }),
                 databaseService.refreshTokens.findOne({ token: value })
               ])
               if (refresh_token === null) {
@@ -175,6 +181,38 @@ export const refreshTokenValidator = validate(
             } catch (error) {
               throw new Error('Loi refresh')
             }
+          }
+        }
+      }
+    },
+    ['body']
+  )
+)
+
+export const emailVerifyTokenValidator = validate(
+  checkSchema(
+    {
+      email_verify_token: {
+        trim: true,
+        custom: {
+          options: async (value: string, { req }) => {
+            if (!value) {
+              throw new Error('Loi')
+            }
+            try {
+              const decoded_email_verify_token = await verifyToken({
+                token: value,
+                secretOrPublicKey: process.env.JWT_SECRET_EMAIL_VERIFY_TOKEN as string
+              }) // @ts-ignore
+
+              ;(req as Request).decoded_email_verify_token = decoded_email_verify_token
+              if (decoded_email_verify_token === null) {
+                throw new Error('Error')
+              }
+            } catch (error) {
+              throw new Error('Loi refresh')
+            }
+            return true
           }
         }
       }

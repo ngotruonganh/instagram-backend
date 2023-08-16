@@ -2,8 +2,9 @@ import { NextFunction, Request, Response } from 'express'
 import { ObjectId } from 'mongodb'
 import { ParamsDictionary } from 'express-serve-static-core'
 import User from '~/models/schemas/User.schema'
-import { RegisterReqBody, TokenPayload } from '~/models/requsets/User.requests'
+import { LogoutReqBody, RegisterReqBody, TokenPayload } from '~/models/requsets/User.requests'
 import usersService from '~/services/user.services'
+import databaseService from '~/services/database.services'
 
 export const loginController = async (req: Request, res: Response) => {
   const user = req.user as User
@@ -23,7 +24,7 @@ export const registerController = async (req: Request<ParamsDictionary, any, Reg
   })
 }
 
-export const logoutController = async (req: Request, res: Response) => {
+export const logoutController = async (req: Request<ParamsDictionary, any, LogoutReqBody>, res: Response) => {
   const { refresh_token } = req.body
   const result = await usersService.logout(refresh_token)
   return res.json({
@@ -47,5 +48,29 @@ export const getUserController = async (req: Request, res: Response, next: NextF
   return res.json({
     message: 'Get user success',
     result: user
+  })
+}
+
+export const emailVerifyTokenController = async (req: Request, res: Response, next: NextFunction) => {
+  const { user_id } = req.decoded_email_verify_token as TokenPayload
+  console.log("email")
+  const user = await databaseService.users.findOne({
+    _id: new ObjectId(user_id)
+  })
+  if (!user) {
+    return res.status(404).json({
+      message: 'User not found'
+    })
+  }
+
+  if (user.email_verify_token == '') {
+    return res.status(404).json({
+      message: 'Verify before'
+    })
+  }
+  const result = await usersService.verifyEmail(user_id)
+  return res.json({
+    message: 'Verify success',
+    result
   })
 }
