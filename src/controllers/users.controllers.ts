@@ -53,7 +53,6 @@ export const getUserController = async (req: Request, res: Response, next: NextF
 
 export const emailVerifyTokenController = async (req: Request, res: Response, next: NextFunction) => {
   const { user_id } = req.decoded_email_verify_token as TokenPayload
-  console.log("email")
   const user = await databaseService.users.findOne({
     _id: new ObjectId(user_id)
   })

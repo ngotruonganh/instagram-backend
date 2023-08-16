@@ -3,13 +3,14 @@ import { config } from 'dotenv'
 import User from '~/models/schemas/User.schema'
 import RefreshToken from '~/models/schemas/RefreshToken.schema'
 import { RegisterReqBody } from '~/models/requsets/User.requests'
-import {TokenType, UserVerifyStatus} from '~/constants/enums'
+import { TokenType, UserVerifyStatus } from '~/constants/enums'
 import databaseService from '~/services/database.services'
 import { hashPassword } from '~/utils/crypto'
-import {signToken, verifyToken} from '~/utils/jwt'
+import { signToken, verifyToken } from '~/utils/jwt'
 import * as process from 'process'
 import userRouter from '~/routes/users.router'
-import {verify} from "jsonwebtoken";
+import { verify } from 'jsonwebtoken'
+import { sendVerifyEmail } from '../../email'
 
 config()
 
@@ -64,6 +65,7 @@ class UsersService {
     }
   }
   async register(payload: RegisterReqBody) {
+    console.log('?')
     const user_id = new ObjectId()
     const email_verify_token = await this.signVerifyEmailToken(user_id.toString())
     await databaseService.users.insertOne(
@@ -79,7 +81,12 @@ class UsersService {
     await databaseService.refreshTokens.insertOne(
       new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token })
     )
-    console.log('email verify: ', email_verify_token)
+    await sendVerifyEmail(
+      payload.email,
+      'Email verify account',
+      `<h1>Verify your account</h1> <a href="http://localhost:8080/api/v1/users/verify-email/${email_verify_token}">Verify</a>`
+    )
+    console.log('Token verify: ', email_verify_token)
     return {
       access_token,
       refresh_token
