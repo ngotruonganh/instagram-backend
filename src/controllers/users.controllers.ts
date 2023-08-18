@@ -7,7 +7,7 @@ import usersService from '~/services/user.services'
 import databaseService from '~/services/database.services'
 import { UserVerifyStatus } from '~/constants/enums'
 import userServices from '~/services/user.services'
-import {sendVerifyEmail} from "../../email";
+import { sendVerifyEmail } from '../../email'
 
 export const loginController = async (req: Request, res: Response) => {
   const user = req.user as User
@@ -97,7 +97,6 @@ export const resendEmailVerifyTokenController = async (req: Request, res: Respon
 export const forgotPasswordTokenController = async (req: Request, res: Response, next: NextFunction) => {
   const { _id, email } = req.user as User
   console.log('id', _id)
-  const result = userServices.forgotPassword((_id as ObjectId).toString())
-  await sendVerifyEmail(email, 'forgot password', 'forgot di')
+  const result = userServices.forgotPassword((_id as ObjectId).toString(), email)
   return res.json({ message: 'send', result })
 }

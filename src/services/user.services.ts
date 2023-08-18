@@ -94,7 +94,7 @@ class UsersService {
     await sendVerifyEmail(
       payload.email,
       'Email verify account',
-      `<h1>Verify your account</h1> <a href="http://localhost:8080/api/v1/users/verify-email/${email_verify_token}">Verify</a>`
+      `<h1>Verify your account</h1> <a href="http://localhost:8080/api/v1/users/verify-email/${email_verify_token}">Verify</a><p>${email_verify_token}</p>`
     )
     console.log('Token verify: ', email_verify_token)
     return {
@@ -163,7 +163,7 @@ class UsersService {
     )
     return user
   }
-  async forgotPassword(user_id: string) {
+  async forgotPassword(user_id: string, email: string) {
     const forgot_password_token = await this.signForgotPasswordToken(user_id)
     console.log('Forgot password token: ', forgot_password_token)
     const user = await databaseService.users.updateOne(
@@ -177,6 +177,7 @@ class UsersService {
         }
       }
     )
+    await sendVerifyEmail(email, 'forgot password', `<h1>${forgot_password_token}</h1>`)
     return {
       message: 'Forgot password sent'
     }
