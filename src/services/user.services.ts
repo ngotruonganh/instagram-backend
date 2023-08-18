@@ -177,7 +177,7 @@ class UsersService {
         }
       }
     )
-    await sendVerifyEmail(email, 'forgot password', `<h1>${forgot_password_token}</h1>`)
+    await sendVerifyEmail(email, 'Forgot password', `<h1>${forgot_password_token}</h1>`)
     return {
       message: 'Forgot password sent'
     }
