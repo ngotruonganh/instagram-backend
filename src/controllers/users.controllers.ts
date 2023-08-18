@@ -5,6 +5,9 @@ import User from '~/models/schemas/User.schema'
 import { LogoutReqBody, RegisterReqBody, TokenPayload } from '~/models/requsets/User.requests'
 import usersService from '~/services/user.services'
 import databaseService from '~/services/database.services'
+import { UserVerifyStatus } from '~/constants/enums'
+import userServices from '~/services/user.services'
+import {sendVerifyEmail} from "../../email";
 
 export const loginController = async (req: Request, res: Response) => {
   const user = req.user as User
@@ -72,4 +75,29 @@ export const emailVerifyTokenController = async (req: Request, res: Response, ne
     message: 'Verify success',
     result
   })
+}
+
+export const resendEmailVerifyTokenController = async (req: Request, res: Response, next: NextFunction) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
+  if (!user) {
+    return res.status(422).json({
+      message: 'User not found'
+    })
+  }
+  if (user.verify === UserVerifyStatus.Verified) {
+    return res.status(422).json({
+      message: 'User verify before'
+    })
+  }
+  const result = await userServices.resendVerifyEmail(user_id)
+  return res.json(result)
+}
+
+export const forgotPasswordTokenController = async (req: Request, res: Response, next: NextFunction) => {
+  const { _id, email } = req.user as User
+  console.log('id', _id)
+  const result = userServices.forgotPassword((_id as ObjectId).toString())
+  await sendVerifyEmail(email, 'forgot password', 'forgot di')
+  return res.json({ message: 'send', result })
 }

@@ -6,10 +6,8 @@ import { RegisterReqBody } from '~/models/requsets/User.requests'
 import { TokenType, UserVerifyStatus } from '~/constants/enums'
 import databaseService from '~/services/database.services'
 import { hashPassword } from '~/utils/crypto'
-import { signToken, verifyToken } from '~/utils/jwt'
+import { signToken } from '~/utils/jwt'
 import * as process from 'process'
-import userRouter from '~/routes/users.router'
-import { verify } from 'jsonwebtoken'
 import { sendVerifyEmail } from '../../email'
 
 config()
@@ -48,6 +46,18 @@ class UsersService {
       privateKey: process.env.JWT_SECRET_EMAIL_VERIFY_TOKEN as string,
       options: {
         expiresIn: process.env.EMAIL_VERIFY_TOKEN_EXPIRES_IN
+      }
+    })
+  }
+  private signForgotPasswordToken(user_id: string) {
+    return signToken({
+      payload: {
+        user_id,
+        token_type: TokenType.ForgotPasswordToken
+      },
+      privateKey: process.env.JWT_SECRET_FORGOT_PASSWORD_TOKEN as string,
+      options: {
+        expiresIn: process.env.FORGOT_PASSWORD_TOKEN_EXPIRES_IN
       }
     })
   }
@@ -136,6 +146,40 @@ class UsersService {
   async checkEmailExist(email: string) {
     const user = await databaseService.users.findOne({ email })
     return Boolean(user)
+  }
+  async resendVerifyEmail(user_id: string) {
+    const resend_email_verify_token = await this.signVerifyEmailToken(user_id)
+    console.log('Resend email verify: ', resend_email_verify_token)
+    const user = await databaseService.users.updateOne(
+      { _id: new ObjectId(user_id) },
+      {
+        $set: {
+          email_verify_token: resend_email_verify_token
+        },
+        $currentDate: {
+          updated_at: true
+        }
+      }
+    )
+    return user
+  }
+  async forgotPassword(user_id: string) {
+    const forgot_password_token = await this.signForgotPasswordToken(user_id)
+    console.log('Forgot password token: ', forgot_password_token)
+    const user = await databaseService.users.updateOne(
+      { _id: new ObjectId(user_id) },
+      {
+        $set: {
+          forgot_password_token
+        },
+        $currentDate: {
+          updated_at: true
+        }
+      }
+    )
+    return {
+      message: 'Forgot password sent'
+    }
   }
 }
 

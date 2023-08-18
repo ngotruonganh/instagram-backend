@@ -60,5 +60,3 @@ export const sendVerifyEmail = async (toAddress: string, subject: string, body: 
   })
   return sesClient.send(sendEmailCommand)
 }
-
-sendVerifyEmail('thanhvathothe@gmail.com', 'Welcome', '<h1>Nội dung email</h1>')

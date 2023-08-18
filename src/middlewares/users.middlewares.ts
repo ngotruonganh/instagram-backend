@@ -220,3 +220,28 @@ export const emailVerifyTokenValidator = validate(
     ['body']
   )
 )
+
+export const emailValidator = validate(
+  checkSchema(
+    {
+      email: {
+        notEmpty: true,
+        isEmail: true,
+        trim: true,
+        custom: {
+          options: async (value, { req }) => {
+            const user = await databaseService.users.findOne({
+              email: value
+            })
+            if (user === null) {
+              throw new ErrorWithStatus({ status: 401, message: 'Email is not found' })
+            }
+            req.user = user
+            return user
+          }
+        }
+      }
+    },
+    ['body']
+  )
+)
