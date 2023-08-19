@@ -1,4 +1,4 @@
-import { checkSchema } from 'express-validator'
+import { checkSchema, ParamSchema } from 'express-validator'
 import { validate } from '~/utils/validation'
 import userServices from '~/services/user.services'
 import databaseService from '~/services/database.services'
@@ -8,6 +8,90 @@ import { ErrorWithStatus } from '~/models/Error'
 import * as process from 'process'
 import { Request } from 'express'
 import { ObjectId } from 'mongodb'
+
+const passwordSchema: ParamSchema = {
+  notEmpty: true,
+  isString: true,
+  isLength: {
+    options: {
+      min: 6,
+      max: 50
+    }
+  },
+  isStrongPassword: {
+    options: {
+      minLength: 6,
+      minLowercase: 1,
+      minUppercase: 1,
+      minNumbers: 1,
+      minSymbols: 1
+    },
+    errorMessage:
+      'Password must be at least 6 characters long and contain at least 1 lowercase letter, 1 uppercase letter, 1 number, and 1 symbol'
+  }
+}
+
+const confirmPasswordSchema: ParamSchema = {
+  notEmpty: true,
+  isString: true,
+  isLength: {
+    options: {
+      min: 6,
+      max: 50
+    }
+  },
+  isStrongPassword: {
+    options: {
+      minLength: 6,
+      minLowercase: 1,
+      minUppercase: 1,
+      minNumbers: 1,
+      minSymbols: 1
+    },
+    errorMessage:
+      'Password must be at least 6 characters long and contain at least 1 lowercase letter, 1 uppercase letter, 1 number, and 1 symbol'
+  },
+  custom: {
+    options: (value, { req }) => {
+      if (value !== req.body.password) {
+        throw new ErrorWithStatus({ message: 'Password confirmation does not match password', status: 401 })
+      }
+      return true
+    }
+  }
+}
+
+const forgotPasswordSchema: ParamSchema = {
+  trim: true,
+  custom: {
+    options: async (value: string, { req }) => {
+      if (!value) {
+        console.log('?')
+        throw new Error('Miss forgot password token')
+      }
+      try {
+        const decode_forgot_password_token = await verifyToken({
+          token: value,
+          secretOrPublicKey: process.env.JWT_SECRET_FORGOT_PASSWORD_TOKEN as string
+        })
+        const { user_id } = decode_forgot_password_token
+        const user = await databaseService.users.findOne({
+          _id: new ObjectId(user_id)
+        })
+        if (user === null) {
+          throw new Error('Can not find user')
+        }
+        if (user.forgot_password_token !== value) {
+          throw new Error('Wrong token')
+        }
+        req.decode_forgot_password_token = decode_forgot_password_token
+      } catch (error) {
+        throw new Error('Err validator forgot password')
+      }
+      return true
+    }
+  }
+}
 
 export const loginValidator = validate(
   checkSchema(
@@ -69,56 +153,8 @@ export const registerValidator = validate(
           }
         }
       },
-      password: {
-        notEmpty: true,
-        isString: true,
-        isLength: {
-          options: {
-            min: 6,
-            max: 50
-          }
-        },
-        isStrongPassword: {
-          options: {
-            minLength: 6,
-            minLowercase: 1,
-            minUppercase: 1,
-            minNumbers: 1,
-            minSymbols: 1
-          },
-          errorMessage:
-            'Password must be at least 6 characters long and contain at least 1 lowercase letter, 1 uppercase letter, 1 number, and 1 symbol'
-        }
-      },
-      confirm_password: {
-        notEmpty: true,
-        isString: true,
-        isLength: {
-          options: {
-            min: 6,
-            max: 50
-          }
-        },
-        isStrongPassword: {
-          options: {
-            minLength: 6,
-            minLowercase: 1,
-            minUppercase: 1,
-            minNumbers: 1,
-            minSymbols: 1
-          },
-          errorMessage:
-            'Password must be at least 6 characters long and contain at least 1 lowercase letter, 1 uppercase letter, 1 number, and 1 symbol'
-        },
-        custom: {
-          options: (value, { req }) => {
-            if (value !== req.body.password) {
-              throw new ErrorWithStatus({ message: 'Password confirmation does not match password', status: 401 })
-            }
-            return true
-          }
-        }
-      },
+      password: passwordSchema,
+      confirm_password: confirmPasswordSchema,
       date_of_birth: {
         isISO8601: {
           options: {
@@ -250,35 +286,18 @@ export const forgotPasswordValidator = validate(
 export const verifyForgotPasswordValidator = validate(
   checkSchema(
     {
-      forgot_password_token: {
-        trim: true,
-        custom: {
-          options: async (value: string, { req }) => {
-            if (!value) {
-              throw new Error('Miss forgot password token')
-            }
-            try {
-              const decode_forgot_password_token = await verifyToken({
-                token: value,
-                secretOrPublicKey: process.env.JWT_SECRET_FORGOT_PASSWORD_TOKEN as string
-              })
-              const { user_id } = decode_forgot_password_token
-              const user = await databaseService.users.findOne({
-                _id: new ObjectId(user_id)
-              })
-              if (user === null) {
-                throw new Error('Can not find user')
-              }
-              if(user.forgot_password_token !== value) {
-                throw new Error("Wrong token")
-              }
-            } catch (error) {
-              throw new Error('Err validator forgot password')
-            }
-            return true
-          }
-        }
-      }
+      forgot_password_token: forgotPasswordSchema
+    },
+    ['body']
+  )
+)
+
+export const resetPasswordValidator = validate(
+  checkSchema(
+    {
+      password: passwordSchema,
+      confirm_password: confirmPasswordSchema,
+      forgot_password_token: forgotPasswordSchema
     },
     ['body']
   )

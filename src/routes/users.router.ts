@@ -6,6 +6,7 @@ import {
   loginValidator,
   refreshTokenValidator,
   registerValidator,
+  resetPasswordValidator,
   verifyForgotPasswordValidator
 } from '~/middlewares/users.middlewares'
 import {
@@ -17,7 +18,8 @@ import {
   emailVerifyTokenController,
   resendEmailVerifyTokenController,
   forgotPasswordTokenController,
-  verifyForgotPasswordTokenController
+  verifyForgotPasswordTokenController,
+  resetPasswordTokenController
 } from '~/controllers/users.controllers'
 import { wrapHandleError } from '~/utils/handlerError'
 
@@ -39,6 +41,7 @@ userRouter.post(
   verifyForgotPasswordValidator,
   wrapHandleError(verifyForgotPasswordTokenController)
 )
+userRouter.post('/reset-password', resetPasswordValidator, wrapHandleError(resetPasswordTokenController))
 userRouter.get('/account', accessTokenValidator, wrapHandleError(getAccountController))
 userRouter.get('/:userid', wrapHandleError(getUserController))
 

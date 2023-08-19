@@ -117,7 +117,7 @@ class UsersService {
           $set: {
             email_verify_token: '',
             verify: UserVerifyStatus.Verified,
-            update_at: new Date()
+            updated_at: new Date()
           }
         }
       )
@@ -180,6 +180,23 @@ class UsersService {
     await sendVerifyEmail(email, 'Forgot password', `<h1>${forgot_password_token}</h1>`)
     return {
       message: 'Forgot password sent'
+    }
+  }
+  async resetPassword(user_id: string, password: string) {
+    const user = await databaseService.users.updateOne(
+      { _id: new ObjectId(user_id) },
+      {
+        $set: {
+          forgot_password_token: '',
+          password: hashPassword(password)
+        },
+        $currentDate: {
+          updated_at: true
+        }
+      }
+    )
+    return {
+      message: 'Reset password success'
     }
   }
 }

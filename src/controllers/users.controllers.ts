@@ -105,3 +105,11 @@ export const verifyForgotPasswordTokenController = async (req: Request, res: Res
     message: 'Go to change password view'
   })
 }
+
+export const resetPasswordTokenController = async (req: Request, res: Response, next: NextFunction) => {
+  const { user_id } = req.decode_forgot_password_token as TokenPayload
+  console.log(user_id)
+  const { password } = req.body
+  await userServices.resetPassword(user_id, password)
+  return res.json('Reset success')
+}
