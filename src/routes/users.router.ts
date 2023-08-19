@@ -1,11 +1,12 @@
 import { Router } from 'express'
 import {
   accessTokenValidator,
-  emailValidator,
   emailVerifyTokenValidator,
+  forgotPasswordValidator,
   loginValidator,
   refreshTokenValidator,
-  registerValidator
+  registerValidator,
+  verifyForgotPasswordValidator
 } from '~/middlewares/users.middlewares'
 import {
   loginController,
@@ -15,7 +16,8 @@ import {
   getUserController,
   emailVerifyTokenController,
   resendEmailVerifyTokenController,
-  forgotPasswordTokenController
+  forgotPasswordTokenController,
+  verifyForgotPasswordTokenController
 } from '~/controllers/users.controllers'
 import { wrapHandleError } from '~/utils/handlerError'
 
@@ -31,7 +33,12 @@ userRouter.post(
   wrapHandleError(emailVerifyTokenController)
 )
 userRouter.post('/resend-verify-email', accessTokenValidator, wrapHandleError(resendEmailVerifyTokenController))
-userRouter.post('/forgot-password', emailValidator, wrapHandleError(forgotPasswordTokenController))
+userRouter.post('/forgot-password', forgotPasswordValidator, wrapHandleError(forgotPasswordTokenController))
+userRouter.post(
+  '/verify-forgot-password',
+  verifyForgotPasswordValidator,
+  wrapHandleError(verifyForgotPasswordTokenController)
+)
 userRouter.get('/account', accessTokenValidator, wrapHandleError(getAccountController))
 userRouter.get('/:userid', wrapHandleError(getUserController))
 

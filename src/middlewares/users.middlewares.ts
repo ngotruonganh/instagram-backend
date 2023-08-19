@@ -7,6 +7,7 @@ import { verifyToken } from '~/utils/jwt'
 import { ErrorWithStatus } from '~/models/Error'
 import * as process from 'process'
 import { Request } from 'express'
+import { ObjectId } from 'mongodb'
 
 export const loginValidator = validate(
   checkSchema(
@@ -221,7 +222,7 @@ export const emailVerifyTokenValidator = validate(
   )
 )
 
-export const emailValidator = validate(
+export const forgotPasswordValidator = validate(
   checkSchema(
     {
       email: {
@@ -238,6 +239,43 @@ export const emailValidator = validate(
             }
             req.user = user
             return user
+          }
+        }
+      }
+    },
+    ['body']
+  )
+)
+
+export const verifyForgotPasswordValidator = validate(
+  checkSchema(
+    {
+      forgot_password_token: {
+        trim: true,
+        custom: {
+          options: async (value: string, { req }) => {
+            if (!value) {
+              throw new Error('Miss forgot password token')
+            }
+            try {
+              const decode_forgot_password_token = await verifyToken({
+                token: value,
+                secretOrPublicKey: process.env.JWT_SECRET_FORGOT_PASSWORD_TOKEN as string
+              })
+              const { user_id } = decode_forgot_password_token
+              const user = await databaseService.users.findOne({
+                _id: new ObjectId(user_id)
+              })
+              if (user === null) {
+                throw new Error('Can not find user')
+              }
+              if(user.forgot_password_token !== value) {
+                throw new Error("Wrong token")
+              }
+            } catch (error) {
+              throw new Error('Err validator forgot password')
+            }
+            return true
           }
         }
       }

@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express'
+import { json, NextFunction, Request, Response } from 'express'
 import { ObjectId } from 'mongodb'
 import { ParamsDictionary } from 'express-serve-static-core'
 import User from '~/models/schemas/User.schema'
@@ -96,7 +96,12 @@ export const resendEmailVerifyTokenController = async (req: Request, res: Respon
 
 export const forgotPasswordTokenController = async (req: Request, res: Response, next: NextFunction) => {
   const { _id, email } = req.user as User
-  console.log('id', _id)
   const result = userServices.forgotPassword((_id as ObjectId).toString(), email)
   return res.json({ message: 'send', result })
+}
+
+export const verifyForgotPasswordTokenController = async (req: Request, res: Response, next: NextFunction) => {
+  return res.json({
+    message: 'Go to change password view'
+  })
 }
