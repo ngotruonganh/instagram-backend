@@ -6,15 +6,15 @@ import { defaultErrorHandler } from '~/middlewares/error.middlewares'
 import cors, { CorsOptions } from 'cors'
 import postRouter from '~/routes/posts.router'
 
-const app = express()
-
-config()
-
 const corsOptions: CorsOptions = {
   origin: '*'
 }
 
+const app = express()
+
 app.use(cors(corsOptions))
+
+config()
 
 const port = process.env.PORT
 
