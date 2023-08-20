@@ -7,7 +7,8 @@ import cors, { CorsOptions } from 'cors'
 import postRouter from '~/routes/posts.router'
 
 const corsOptions: CorsOptions = {
-  origin: '*'
+  origin: '*',
+  credentials: true
 }
 
 const app = express()
