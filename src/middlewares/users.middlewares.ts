@@ -4,19 +4,23 @@ import userServices from '~/services/user.services'
 import databaseService from '~/services/database.services'
 import { hashPassword } from '~/utils/crypto'
 import { verifyToken } from '~/utils/jwt'
-import { ErrorWithStatus } from '~/models/Error'
+import { ErrorWithStatus } from '~/models/Errors'
 import * as process from 'process'
 import { Request } from 'express'
 import { ObjectId } from 'mongodb'
+import httpStatus from '~/constants/httpStatus'
 
 const passwordSchema: ParamSchema = {
-  notEmpty: true,
+  notEmpty: {
+    errorMessage: 'Password is required'
+  },
   isString: true,
   isLength: {
     options: {
       min: 6,
-      max: 50
-    }
+      max: 30
+    },
+    errorMessage: 'Password must be at least 6 and more than 30'
   },
   isStrongPassword: {
     options: {
@@ -54,7 +58,7 @@ const confirmPasswordSchema: ParamSchema = {
   custom: {
     options: (value, { req }) => {
       if (value !== req.body.password) {
-        throw new ErrorWithStatus({ message: 'Password confirmation does not match password', status: 401 })
+        throw new ErrorWithStatus({ message: 'Password confirmation does not match password', status: httpStatus.UNAUTHORIZED })
       }
       return true
     }
@@ -66,7 +70,6 @@ const forgotPasswordSchema: ParamSchema = {
   custom: {
     options: async (value: string, { req }) => {
       if (!value) {
-        console.log('?')
         throw new Error('Miss forgot password token')
       }
       try {
@@ -97,10 +100,13 @@ export const loginValidator = validate(
   checkSchema(
     {
       email: {
-        notEmpty: true,
-        isEmail: true,
+        notEmpty: {
+          errorMessage: 'Email is required'
+        },
+        isEmail: {
+          errorMessage: 'Wrong email format'
+        },
         trim: true,
-        errorMessage: 'Email can not empty',
         custom: {
           options: async (value, { req }) => {
             const user = await databaseService.users.findOne({
@@ -108,7 +114,7 @@ export const loginValidator = validate(
               password: hashPassword(req.body.password)
             })
             if (user === null) {
-              throw new ErrorWithStatus({ message: 'User not found', status: 400 })
+              throw new ErrorWithStatus({ message: 'Email or password is incorrect', status: httpStatus.NOT_FOUND })
             }
             req.user = user
             return true
@@ -116,9 +122,10 @@ export const loginValidator = validate(
         }
       },
       password: {
-        notEmpty: true,
+        notEmpty: {
+          errorMessage: 'Password is required'
+        },
         isString: true,
-        errorMessage: 'Password can not empty'
       }
     },
     ['body']
@@ -141,13 +148,15 @@ export const registerValidator = validate(
       },
       email: {
         notEmpty: true,
-        isEmail: true,
+        isEmail: {
+          errorMessage: 'Wrong email format'
+        },
         trim: true,
         custom: {
           options: async (value) => {
             const result = await userServices.checkEmailExist(value)
             if (result) {
-              throw new ErrorWithStatus({ message: 'Email is exists', status: 401 })
+              throw new ErrorWithStatus({ message: 'Email is exists', status: httpStatus.UNAUTHORIZED })
             }
             return true
           }
