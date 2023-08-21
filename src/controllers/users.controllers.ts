@@ -36,6 +36,16 @@ export const logoutController = async (req: Request<ParamsDictionary, any, Logou
   })
 }
 
+export const refreshTokenController = async (req: Request, res: Response, next: NextFunction) => {
+  const { refresh_token } = req.body
+  const { user_id } = req.decoded_refresh_token as TokenPayload
+  const result = await userServices.refreshToken(user_id, refresh_token)
+  return res.json({
+    message: 'Refresh success',
+    result
+  })
+}
+
 export const getAccountController = async (req: Request, res: Response, next: NextFunction) => {
   const { user_id } = req.decoded_authorization as TokenPayload
   const user = await usersService.getAccount(user_id)
@@ -96,7 +106,8 @@ export const resendEmailVerifyTokenController = async (req: Request, res: Respon
 
 export const forgotPasswordTokenController = async (req: Request, res: Response, next: NextFunction) => {
   const { _id, email } = req.user as User
-  const result = userServices.forgotPassword((_id as ObjectId).toString(), email)
+  const result = await userServices.forgotPassword((_id as ObjectId).toString(), email)
+  console.log(result)
   return res.json({ message: 'send', result })
 }
 

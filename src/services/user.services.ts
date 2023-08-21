@@ -75,7 +75,6 @@ class UsersService {
     }
   }
   async register(payload: RegisterReqBody) {
-    console.log('?')
     const user_id = new ObjectId()
     const email_verify_token = await this.signVerifyEmailToken(user_id.toString())
     await databaseService.users.insertOne(
@@ -93,10 +92,10 @@ class UsersService {
     )
     await sendVerifyEmail(
       payload.email,
-      'Email verify account',
+      'Verify email',
       `<h1>Verify your account</h1> <a href="http://localhost:8080/api/v1/users/verify-email/${email_verify_token}">Verify</a><p>${email_verify_token}</p>`
     )
-    console.log('Token verify: ', email_verify_token)
+    console.log('Register verify email: ', email_verify_token)
     return {
       access_token,
       refresh_token
@@ -142,6 +141,20 @@ class UsersService {
       }
     )
     return user
+  }
+  async refreshToken(user_id: string, refresh_token: string ) {
+    const [new_access_token, new_refresh_token] = await Promise.all([
+      this.signAccessToken(user_id),
+      this.signRefreshToken(user_id),
+      databaseService.refreshTokens.deleteOne({ token: refresh_token })
+    ])
+    await databaseService.refreshTokens.insertOne(
+      new RefreshToken({user_id: new  ObjectId(user_id), token: new_refresh_token})
+    )
+    return {
+      new_access_token,
+      new_refresh_token
+    }
   }
   async checkEmailExist(email: string) {
     const user = await databaseService.users.findOne({ email })

@@ -5,7 +5,7 @@ import userRouter from '~/routes/users.router'
 import { defaultErrorHandler } from '~/middlewares/error.middlewares'
 import cors, { CorsOptions } from 'cors'
 import postRouter from '~/routes/posts.router'
-import httpStatus from "~/constants/httpStatus";
+import httpStatus from '~/constants/httpStatus'
 
 const corsOptions: CorsOptions = {
   origin: '*',

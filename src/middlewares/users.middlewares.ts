@@ -58,7 +58,10 @@ const confirmPasswordSchema: ParamSchema = {
   custom: {
     options: (value, { req }) => {
       if (value !== req.body.password) {
-        throw new ErrorWithStatus({ message: 'Password confirmation does not match password', status: httpStatus.UNAUTHORIZED })
+        throw new ErrorWithStatus({
+          message: 'Password confirmation does not match password',
+          status: httpStatus.UNAUTHORIZED
+        })
       }
       return true
     }
@@ -125,7 +128,7 @@ export const loginValidator = validate(
         notEmpty: {
           errorMessage: 'Password is required'
         },
-        isString: true,
+        isString: true
       }
     },
     ['body']
