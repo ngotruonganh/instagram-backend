@@ -1,0 +1,359 @@
+openapi: 3.0.3
+info:
+  title: My Swagger Auth - OpenAPI 3.0
+  version: 1.0.11
+servers:
+  - url: https://instagarm-backend.onrender.com
+tags:
+  - name: Auth
+    description: Các thao tác liên quan đến Auth
+paths:
+  /api/v1/users/login:
+    post:
+      tags:
+        - Auth
+      summary: Đăng nhập
+      description: Đăng nhập vào hệ thống.
+      operationId: login
+      requestBody:
+        description: Thông tin Đăng nhập
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+        required: true
+      responses:
+        '200':
+          description: Đăng nhập thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Login success'
+                  result:
+                    type: object
+                    properties:
+                      access_token:
+                        type: string
+                        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjRkZmNmZDRhZmM2YmZlNjhjNmY4MzI1IiwidG9rZW5fdHlwZSI6MCwiaWF0IjoxNjkyNjU4OTAzLCJleHAiOjE2OTI2NTk4MDN9.XtEBuYDDWI86qxr8DEYV2KfpigvXjlQGdiWMaXpc9wk'
+                      refresh_token:
+                        type: string
+                        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjRkZmNmZDRhZmM2YmZlNjhjNmY4MzI1IiwidG9rZW5fdHlwZSI6MSwiaWF0IjoxNjkyNjU4OTAzLCJleHAiOjE2OTM1MjI5MDN9.bFEUVFLm00kx8D4s4puJpKZAvM-8PuLYcvJqrqp7_SA'
+        '404':
+          description: Sai email hoặc password
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Email or password is incorrect'
+                  status:
+                    type: integer
+                    example: 404
+        '422':
+          description: Sai định dạng email, thiếu email, thiếu password
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Validation error'
+                  status:
+                    type: integer
+                    example: 422
+  /api/v1/users/register:
+    post:
+      tags:
+        - Auth
+      summary: Đăng kí ( Đồng thời gửi email xác thực người dùng )
+      description: Đăng kí tài khoản.
+      operationId: register
+      requestBody:
+        description: Thông tin cần nhập
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegister'
+      responses:
+        '200':
+          description: Đăng kí tài khoản thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Register success'
+                  result:
+                    type: object
+                    properties:
+                      access_token:
+                        type: string
+                        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjRkZmNmZDRhZmM2YmZlNjhjNmY4MzI1IiwidG9rZW5fdHlwZSI6MCwiaWF0IjoxNjkyNjU4OTAzLCJleHAiOjE2OTI2NTk4MDN9.XtEBuYDDWI86qxr8DEYV2KfpigvXjlQGdiWMaXpc9wk'
+                      refresh_token:
+                        type: string
+                        example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjRkZmNmZDRhZmM2YmZlNjhjNmY4MzI1IiwidG9rZW5fdHlwZSI6MSwiaWF0IjoxNjkyNjU4OTAzLCJleHAiOjE2OTM1MjI5MDN9.bFEUVFLm00kx8D4s4puJpKZAvM-8PuLYcvJqrqp7_SA'
+        '401':
+          description: Email đã tồn tại
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Email is exists'
+                  status:
+                    type: integer
+                    example: 401
+        '422':
+          description: Sai định dạng email, thiếu email, thiếu password, passpword và confirm passsword không giống nhau, thiếu sinh nhật
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Validation error'
+                  status:
+                    type: integer
+                    example: 422
+  /api/v1/users/logout:
+    post:
+      tags:
+        - Auth
+      summary: Đăng xuất
+      description: Đăng xuất tài khoản
+      operationId: logout
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Thông tin cần nhập
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+                  example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjRjZTVkYTkxNWJkYTIxYWU2ZmZmOWI0IiwidG9rZW5fdHlwZSI6MSwiaWF0IjoxNjkyMTk1NzcxLCJleHAiOjE2OTMwNTk3NzF9.CVKwogthVqC85HoOBE9ASCJTyolacS_ljSiTJvsw1UI'
+      responses:
+        '200':
+          description: Đăng xuất thành công
+  /api/v1/users/refresh-token:
+    post:
+      tags:
+        - Auth
+      summary: Refresh token
+      description: Refresh token
+      operationId: refreshToken
+      requestBody:
+        description: Người dùng không cần truyền gì
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+                  example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjRjZTVkYTkxNWJkYTIxYWU2ZmZmOWI0IiwidG9rZW5fdHlwZSI6MSwiaWF0IjoxNjkyMTk1NzcxLCJleHAiOjE2OTMwNTk3NzF9.CVKwogthVqC85HoOBE9ASCJTyolacS_ljSiTJvsw1UI'
+      responses:
+        '200':
+          description: Đăng xuất thành công
+  /api/v1/users/forgot-password:
+    post:
+      tags:
+        - Auth
+      summary: Gửi email đặt lại mặt khẩu
+      description: Tiến hành xác thực email và gửi email đến người dùng
+      operationId: forgotPassword
+      requestBody:
+        description:  Nhập email để lấy lại mật khẩu
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: 'ngotruonganh1901@gmail.com'
+      responses:
+        '200':
+          description: Gửi email thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'send'
+                  result:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        example: 'Forgot password sent'
+        '401':
+          description: Email không tồn tại
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Email is not found'
+                  status:
+                    type: integer
+                    example: 401
+        '422':
+          description: Sai định dạng email
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Validation error'
+                  status:
+                    type: integer
+                    example: 422
+  /api/v1/users/verify-forgot-password:
+    post:
+      tags:
+        - Auth
+      summary: Xác nhận đặt lại mật khẩu trong email
+      description: Nhấn vào email để xác nhận đặt lại mật khẩu
+      operationId: verifyResetPassword
+      requestBody:
+        description: Người dùng không cần truyền gì hệ thống tự động truyền forgot_password_token
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                forgot_password_token:
+                  type: string
+                  example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjRlMTExYzc0MmQwZjVlY2Q1NjMwODA0IiwidG9rZW5fdHlwZSI6MiwiaWF0IjoxNjkyNDcyMDExLCJleHAiOjE2OTI1NTg0MTF9.T7NDq_i3bqNymPVIHWzaKX1esZLCOq5A02QUSexNjiA'
+      responses:
+        '200':
+          description: Reset password success
+        '401':
+          description: Password confirmation does not match password
+        '422':
+          description: Validation error
+  /api/v1/users/reset-password:
+    post:
+      tags:
+        - Auth
+      summary: Đặt lại mật khẩu
+      description: Đặt lại mặt khẩu
+      operationId: resetPassword
+      requestBody:
+        description:  Nhập password và confirm password để đặt lại mật khẩu, hệ thống tự truyền forgot_password_token
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                  example: 'Abc!123446789'
+                confirm_ password:
+                  type: string
+                  example: 'Abc!123446789'
+                forgot_password_token:
+                  type: string
+                  example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjRlMTExYzc0MmQwZjVlY2Q1NjMwODA0IiwidG9rZW5fdHlwZSI6MiwiaWF0IjoxNjkyNDcyMDExLCJleHAiOjE2OTI1NTg0MTF9.T7NDq_i3bqNymPVIHWzaKX1esZLCOq5A02QUSexNjiA'
+      responses:
+        '200':
+          description: Reset password success
+        '401':
+          description: Password confirmation does not match password
+        '422':
+          description: Validation error
+  /api/v1/users/resend-verify-email:
+    post:
+      tags:
+        - Auth
+      summary: Gửi lại email xác thực
+      description: Gửi lại email xác thực, đã gửi khi đăng kí thành công
+      operationId: resendVerifyEmail
+      security:
+        - bearerAuth: []
+      responses:
+        default:
+          description: Resend verify email success
+  /api/v1/users/verify-email:
+    post:
+      tags:
+        - Auth
+      summary: Nhấn vào email để xác thực người dùng
+      description: Nhấn vào email để xác thực người dùng
+      operationId: verifyEmail
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Nhấn vào email để xác thực người dùng, không cần truyền gì
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email_verify_token:
+                  type: string
+                  example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjRlMTExYzc0MmQwZjVlY2Q1NjMwODA0IiwidG9rZW5fdHlwZSI6MiwiaWF0IjoxNjkyNDcyMDExLCJleHAiOjE2OTI1NTg0MTF9.T7NDq_i3bqNymPVIHWzaKX1esZLCOq5A02QUSexNjiA'
+      responses:
+        default:
+          description: Verify email sucess
+
+components:
+  schemas:
+    UserLogin:
+      type: object
+      properties:
+        email:
+          type: string
+          example: 'ngotruonganh1901@gmail.com'
+        password:
+          type: string
+          example: 'Abc@123456'
+      xml:
+        name: user
+    UserRegister:
+      type: object
+      properties:
+        name:
+          type: string
+          example: 'Anh Ngo'
+        email:
+          type: string
+          example: 'ngotruonganh1901@gmail.com'
+        password:
+          type: string
+          example: 'Abc@123456'
+        confirm_password:
+          type: string
+          example: 'Abc@123456'
+        date_of_birth:
+          type: string
+          format: data-time
+          example: '2023-08-02T19:30:52.372+00:00'
+      xml:
+        name: user
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

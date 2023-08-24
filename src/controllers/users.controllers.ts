@@ -1,4 +1,4 @@
-import { json, NextFunction, Request, Response } from 'express'
+import { Request, Response, NextFunction } from 'express'
 import { ObjectId } from 'mongodb'
 import { ParamsDictionary } from 'express-serve-static-core'
 import User from '~/models/schemas/User.schema'
@@ -7,7 +7,6 @@ import usersService from '~/services/user.services'
 import databaseService from '~/services/database.services'
 import { UserVerifyStatus } from '~/constants/enums'
 import userServices from '~/services/user.services'
-import { sendVerifyEmail } from '../../email'
 
 export const loginController = async (req: Request, res: Response) => {
   const user = req.user as User
@@ -36,12 +35,12 @@ export const logoutController = async (req: Request<ParamsDictionary, any, Logou
   })
 }
 
-export const refreshTokenController = async (req: Request, res: Response, next: NextFunction) => {
+export const refreshTokenController = async (req: Request, res: Response) => {
   const { refresh_token } = req.body
   const { user_id } = req.decoded_refresh_token as TokenPayload
   const result = await userServices.refreshToken(user_id, refresh_token)
   return res.json({
-    message: 'Refresh success',
+    message: 'Refresh token success',
     result
   })
 }

@@ -93,7 +93,7 @@ class UsersService {
     await sendVerifyEmail(
       payload.email,
       'Verify email',
-      `<h1>Verify your account</h1> <a href="http://localhost:8080/api/v1/users/verify-email/${email_verify_token}">Verify</a><p>${email_verify_token}</p>`
+      `<h1>Verify your account</h1> <a href="${process.env.PRODUCTION_URL}/api/v1/users/verify-email/${email_verify_token}">Verify</a>`
     )
     console.log('Register verify email: ', email_verify_token)
     return {
@@ -142,14 +142,14 @@ class UsersService {
     )
     return user
   }
-  async refreshToken(user_id: string, refresh_token: string ) {
+  async refreshToken(user_id: string, refresh_token: string) {
     const [new_access_token, new_refresh_token] = await Promise.all([
       this.signAccessToken(user_id),
       this.signRefreshToken(user_id),
       databaseService.refreshTokens.deleteOne({ token: refresh_token })
     ])
     await databaseService.refreshTokens.insertOne(
-      new RefreshToken({user_id: new  ObjectId(user_id), token: new_refresh_token})
+      new RefreshToken({ user_id: new ObjectId(user_id), token: new_refresh_token })
     )
     return {
       new_access_token,

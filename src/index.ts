@@ -6,10 +6,17 @@ import { defaultErrorHandler } from '~/middlewares/error.middlewares'
 import cors, { CorsOptions } from 'cors'
 import postRouter from '~/routes/posts.router'
 import httpStatus from '~/constants/httpStatus'
+import swaggerUi from 'swagger-ui-express'
+import fs from 'fs'
+import  YAML from 'yaml'
+import path from 'path'
+
+const file  = fs.readFileSync(path.resolve('swagger.yaml'), 'utf8')
+const swaggerDocument = YAML.parse(file)
 
 const corsOptions: CorsOptions = {
   origin: '*',
-  credentials: true
+  // credentials: true,
 }
 
 const app = express()
@@ -29,6 +36,8 @@ app.get('/', (req, res) => {
     status: httpStatus.OK
   })
 })
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use('/api/v1/users', userRouter)
 
