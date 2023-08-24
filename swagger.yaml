@@ -177,7 +177,7 @@ paths:
       description: Tiến hành xác thực email và gửi email đến người dùng
       operationId: forgotPassword
       requestBody:
-        description:  Nhập email để lấy lại mật khẩu
+        description: Nhập email để lấy lại mật khẩu
         content:
           application/json:
             schema:
@@ -261,7 +261,7 @@ paths:
       description: Đặt lại mặt khẩu
       operationId: resetPassword
       requestBody:
-        description:  Nhập password và confirm password để đặt lại mật khẩu, hệ thống tự truyền forgot_password_token
+        description: Nhập password và confirm password để đặt lại mật khẩu, hệ thống tự truyền forgot_password_token
         content:
           application/json:
             schema:
