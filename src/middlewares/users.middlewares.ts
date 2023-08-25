@@ -68,7 +68,7 @@ const confirmPasswordSchema: ParamSchema = {
   }
 }
 
-const forgotPasswordSchema: ParamSchema = {
+const forgotPasswordTokenSchema: ParamSchema = {
   trim: true,
   custom: {
     options: async (value: string, { req }) => {
@@ -188,8 +188,7 @@ export const accessTokenValidator = validate(
           options: async (value: string, { req }) => {
             const access_token = (value || '').split(' ')[1]
             if (!access_token) {
-              console.log('loi ngay !access token')
-              throw new Error('Loi')
+              throw new Error('Access token is required')
             }
             try {
               const decoded_authorization = await verifyToken({
@@ -198,7 +197,7 @@ export const accessTokenValidator = validate(
               })
               req.decoded_authorization = decoded_authorization
             } catch {
-              throw new Error('Loi decode')
+              throw new Error('Error decode token')
             }
             return true
           }
@@ -214,7 +213,7 @@ export const refreshTokenValidator = validate(
     {
       refresh_token: {
         notEmpty: {
-          errorMessage: 'Can not empty'
+          errorMessage: 'Refresh token is required'
         },
         custom: {
           options: async (value: string, { req }) => {
@@ -224,11 +223,11 @@ export const refreshTokenValidator = validate(
                 databaseService.refreshTokens.findOne({ token: value })
               ])
               if (refresh_token === null) {
-                throw new Error('Error')
+                throw new Error('Refresh token is not found')
               }
               req.decoded_refresh_token = decoded_refresh_token
             } catch (error) {
-              throw new Error('Loi refresh')
+              throw new Error('Error decode refresh token')
             }
           }
         }
@@ -298,7 +297,7 @@ export const forgotPasswordValidator = validate(
 export const verifyForgotPasswordValidator = validate(
   checkSchema(
     {
-      forgot_password_token: forgotPasswordSchema
+      forgot_password_token: forgotPasswordTokenSchema
     },
     ['body']
   )
@@ -309,7 +308,7 @@ export const resetPasswordValidator = validate(
     {
       password: passwordSchema,
       confirm_password: confirmPasswordSchema,
-      forgot_password_token: forgotPasswordSchema
+      forgot_password_token: forgotPasswordTokenSchema
     },
     ['body']
   )
