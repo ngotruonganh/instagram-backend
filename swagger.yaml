@@ -7,6 +7,8 @@ servers:
 tags:
   - name: Auth
     description: Các thao tác liên quan đến Auth
+  - name: Posts
+    description: Các thao tác liên quan đến Post
 paths:
   /api/v1/users/login:
     post:
@@ -316,8 +318,38 @@ paths:
                   example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjRlMTExYzc0MmQwZjVlY2Q1NjMwODA0IiwidG9rZW5fdHlwZSI6MiwiaWF0IjoxNjkyNDcyMDExLCJleHAiOjE2OTI1NTg0MTF9.T7NDq_i3bqNymPVIHWzaKX1esZLCOq5A02QUSexNjiA'
       responses:
         default:
-          description: Verify email sucess
-
+          description: Verify email success
+  /api/v1/posts:
+    post:
+      tags:
+        - Posts
+      summary: Post một bài viết mới
+      description: Post một bài viết mới
+      operationId: posts
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Nhấn vào email để xác thực người dùng, không cần truyền gì
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  example: 'test post'
+                parent_id:
+                  type: string
+                  example: ''
+                hashtags:
+                  type: object
+                  example: []
+                mentions:
+                  type: object
+                  example: []
+      responses:
+        default:
+          description: Post success
 components:
   schemas:
     UserLogin:
