@@ -2,7 +2,7 @@ import express from 'express'
 import { config } from 'dotenv'
 import databaseService from './services/database.services'
 import userRouter from '~/routes/users.router'
-import mediaRouter from "~/routes/medias.router";
+import mediaRouter from '~/routes/medias.router'
 import postRouter from '~/routes/posts.router'
 import { defaultErrorHandler } from '~/middlewares/error.middlewares'
 import cors, { CorsOptions } from 'cors'
@@ -11,7 +11,7 @@ import swaggerUi from 'swagger-ui-express'
 import fs from 'fs'
 import YAML from 'yaml'
 import path from 'path'
-import {initFolder} from "~/utils/file";
+import { initFolder } from '~/utils/file'
 
 const file = fs.readFileSync(path.resolve('swagger.yaml'), 'utf8')
 const swaggerDocument = YAML.parse(file)

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
-import formidable from "formidable";
-import path from "path";
+import formidable from 'formidable'
+import path from 'path'
 
 export const mediaController = async (req: Request, res: Response, next: NextFunction) => {
   const formidable = (await import('formidable')).default
