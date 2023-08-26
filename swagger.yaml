@@ -9,6 +9,8 @@ tags:
     description: Các thao tác liên quan đến Auth
   - name: Posts
     description: Các thao tác liên quan đến Post
+  - name: Users
+    description: Các thao tác liên quan đến User
 paths:
   /api/v1/users/login:
     post:
@@ -319,6 +321,28 @@ paths:
       responses:
         default:
           description: Verify email success
+  /api/v1/users/64dfcfd4afc6bfe68c6f8325:
+    get:
+      tags:
+        - Users
+      summary: Get user
+      description: Nhấn vào email để xác thực người dùng
+      operationId: getUser
+      responses:
+        default:
+          description: Get user success
+  /api/v1/users/account:
+    get:
+      tags:
+        - Users
+      summary: Get account
+      description: get account user when login sucess
+      operationId: getAccount
+      security:
+        - bearerAuth: []
+      responses:
+        default:
+          description: Get account success
   /api/v1/posts:
     post:
       tags:
