@@ -147,7 +147,7 @@ class UsersService {
     return user
   }
   async follower(user_id: string) {
-    const user = await databaseService.followers.findOne({ user_id: new ObjectId(user_id) })
+    const user = await databaseService.followers.find({ user_id: new ObjectId(user_id) }).toArray()
     return user
   }
   async refreshToken(user_id: string, refresh_token: string) {
