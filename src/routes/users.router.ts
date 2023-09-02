@@ -1,26 +1,26 @@
 import { Router } from 'express'
 import {
-  accessTokenValidator,
-  emailVerifyTokenValidator,
-  forgotPasswordValidator,
-  loginValidator,
-  refreshTokenValidator,
-  registerValidator,
-  resetPasswordValidator,
-  verifyForgotPasswordValidator
+    accessTokenValidator,
+    emailVerifyTokenValidator, followValidator,
+    forgotPasswordValidator,
+    loginValidator,
+    refreshTokenValidator,
+    registerValidator,
+    resetPasswordValidator, verifiedUserValidator,
+    verifyForgotPasswordValidator
 } from '~/middlewares/users.middlewares'
 import {
-  loginController,
-  registerController,
-  logoutController,
-  getAccountController,
-  getUserController,
-  emailVerifyTokenController,
-  resendEmailVerifyTokenController,
-  forgotPasswordTokenController,
-  verifyForgotPasswordTokenController,
-  resetPasswordTokenController,
-  refreshTokenController
+    loginController,
+    registerController,
+    logoutController,
+    getAccountController,
+    getUserController,
+    emailVerifyTokenController,
+    resendEmailVerifyTokenController,
+    forgotPasswordTokenController,
+    verifyForgotPasswordTokenController,
+    resetPasswordTokenController,
+    refreshTokenController, followController
 } from '~/controllers/users.controllers'
 import { wrapHandleError } from '~/utils/handlerError'
 
@@ -46,5 +46,12 @@ userRouter.post(
 userRouter.post('/reset-password', resetPasswordValidator, wrapHandleError(resetPasswordTokenController))
 userRouter.get('/account', accessTokenValidator, wrapHandleError(getAccountController))
 userRouter.get('/:userid', wrapHandleError(getUserController))
+userRouter.post(
+  '/follow',
+  accessTokenValidator,
+  // verifiedUserValidator,
+  followValidator,
+  wrapHandleError(followController)
+)
 
 export default userRouter
