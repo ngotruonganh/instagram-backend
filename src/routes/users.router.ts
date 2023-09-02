@@ -27,7 +27,8 @@ import {
   refreshTokenController,
   followController,
   unfollowController,
-  changePasswordController
+  changePasswordController,
+  getFollowerController
 } from '~/controllers/users.controllers'
 import { wrapHandleError } from '~/utils/handlerError'
 
@@ -74,5 +75,6 @@ userRouter.put(
   changePasswordValidator,
   wrapHandleError(changePasswordController)
 )
+userRouter.post('/follower', accessTokenValidator, wrapHandleError(getFollowerController))
 
 export default userRouter

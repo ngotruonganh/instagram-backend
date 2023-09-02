@@ -62,6 +62,16 @@ export const getAccountController = async (req: Request, res: Response, next: Ne
   })
 }
 
+export const getFollowerController = async (req: Request, res: Response, next: NextFunction) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  console.log(user_id)
+  const user = await usersService.follower(user_id)
+  return res.json({
+    message: 'Get follow success',
+    result: user
+  })
+}
+
 export const getUserController = async (req: Request, res: Response, next: NextFunction) => {
   const { userid } = req.params
   const user = await usersService.getAccount(userid)
