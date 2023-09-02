@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import {
   accessTokenValidator,
+  changePasswordValidator,
   emailVerifyTokenValidator,
   followValidator,
   forgotPasswordValidator,
@@ -25,7 +26,8 @@ import {
   resetPasswordTokenController,
   refreshTokenController,
   followController,
-  unfollowController
+  unfollowController,
+  changePasswordController
 } from '~/controllers/users.controllers'
 import { wrapHandleError } from '~/utils/handlerError'
 
@@ -64,6 +66,13 @@ userRouter.delete(
   // verifiedUserValidator,
   unfollowValidator,
   wrapHandleError(unfollowController)
+)
+userRouter.put(
+  '/change-password',
+  accessTokenValidator,
+  // verifiedUserValidator,
+  changePasswordValidator,
+  wrapHandleError(changePasswordController)
 )
 
 export default userRouter

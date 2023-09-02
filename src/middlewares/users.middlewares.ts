@@ -71,6 +71,37 @@ const confirmPasswordSchema: ParamSchema = {
   }
 }
 
+const forgotPasswordTokenSchema: ParamSchema = {
+  trim: true,
+  custom: {
+    options: async (value: string, { req }) => {
+      if (!value) {
+        throw new Error('Miss forgot password token')
+      }
+      try {
+        const decode_forgot_password_token = await verifyToken({
+          token: value,
+          secretOrPublicKey: process.env.JWT_SECRET_FORGOT_PASSWORD_TOKEN as string
+        })
+        const { user_id } = decode_forgot_password_token
+        const user = await databaseService.users.findOne({
+          _id: new ObjectId(user_id)
+        })
+        if (user === null) {
+          throw new Error('Can not find user')
+        }
+        if (user.forgot_password_token !== value) {
+          throw new Error('Wrong token')
+        }
+        req.decode_forgot_password_token = decode_forgot_password_token
+      } catch (error) {
+        throw new Error('Err validator forgot password')
+      }
+      return true
+    }
+  }
+}
+
 const userIdSchema: ParamSchema = {
   custom: {
     options: async (value: string, { req }) => {
@@ -124,37 +155,6 @@ export const unfollowValidator = validate(
     ['params']
   )
 )
-
-const forgotPasswordTokenSchema: ParamSchema = {
-  trim: true,
-  custom: {
-    options: async (value: string, { req }) => {
-      if (!value) {
-        throw new Error('Miss forgot password token')
-      }
-      try {
-        const decode_forgot_password_token = await verifyToken({
-          token: value,
-          secretOrPublicKey: process.env.JWT_SECRET_FORGOT_PASSWORD_TOKEN as string
-        })
-        const { user_id } = decode_forgot_password_token
-        const user = await databaseService.users.findOne({
-          _id: new ObjectId(user_id)
-        })
-        if (user === null) {
-          throw new Error('Can not find user')
-        }
-        if (user.forgot_password_token !== value) {
-          throw new Error('Wrong token')
-        }
-        req.decode_forgot_password_token = decode_forgot_password_token
-      } catch (error) {
-        throw new Error('Err validator forgot password')
-      }
-      return true
-    }
-  }
-}
 
 export const loginValidator = validate(
   checkSchema(
@@ -235,6 +235,36 @@ export const registerValidator = validate(
     },
     ['body']
   )
+)
+
+export const changePasswordValidator = validate(
+  checkSchema({
+    old_password: {
+      ...passwordSchema,
+      custom: {
+        options: async (value: string, { req }) => {
+          const { user_id } = (req as Request).decoded_authorization as TokenPayload
+          const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
+          if (!user) {
+            throw new ErrorWithStatus({
+              message: 'User not found',
+              status: HTTP_STATUS.NOT_FOUND
+            })
+          }
+          const { password } = user
+          const isMatch = hashPassword(value) === password
+          if (!isMatch) {
+            throw new ErrorWithStatus({
+              message: 'Old password not match',
+              status: HTTP_STATUS.UNAUTHORIZED
+            })
+          }
+        }
+      }
+    },
+    password: passwordSchema,
+    confirm_new_password: confirmPasswordSchema
+  })
 )
 
 export const accessTokenValidator = validate(
