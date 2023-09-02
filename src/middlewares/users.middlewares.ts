@@ -6,12 +6,12 @@ import { hashPassword } from '~/utils/crypto'
 import { verifyToken } from '~/utils/jwt'
 import { ErrorWithStatus } from '~/models/Errors'
 import * as process from 'process'
-import {NextFunction, Request} from 'express'
+import { NextFunction, Request } from 'express'
 import { ObjectId } from 'mongodb'
 import httpStatus from '~/constants/httpStatus'
-import {TokenPayload} from "~/models/requsets/User.requests";
-import {UserVerifyStatus} from "~/constants/enums";
-import HTTP_STATUS from "~/constants/httpStatus";
+import { TokenPayload } from '~/models/requsets/User.requests'
+import { UserVerifyStatus } from '~/constants/enums'
+import HTTP_STATUS from '~/constants/httpStatus'
 
 const passwordSchema: ParamSchema = {
   notEmpty: {
@@ -72,48 +72,57 @@ const confirmPasswordSchema: ParamSchema = {
 }
 
 const userIdSchema: ParamSchema = {
-    custom: {
-        options: async (value: string, { req }) => {
-            if (!ObjectId.isValid(value)) {
-                throw new ErrorWithStatus({
-                    message: 'USERS_MESSAGES.INVALID_USER_ID',
-                    status: HTTP_STATUS.NOT_FOUND
-                })
-            }
-            const followed_user = await databaseService.users.findOne({
-                _id: new ObjectId(value)
-            })
+  custom: {
+    options: async (value: string, { req }) => {
+      if (!ObjectId.isValid(value)) {
+        throw new ErrorWithStatus({
+          message: 'USERS_MESSAGES.INVALID_USER_ID',
+          status: HTTP_STATUS.NOT_FOUND
+        })
+      }
+      const followed_user = await databaseService.users.findOne({
+        _id: new ObjectId(value)
+      })
 
-            if (followed_user === null) {
-                throw new ErrorWithStatus({
-                    message: 'USERS_MESSAGES.USER_NOT_FOUND',
-                    status: HTTP_STATUS.NOT_FOUND
-                })
-            }
-        }
+      if (followed_user === null) {
+        throw new ErrorWithStatus({
+          message: 'USERS_MESSAGES.USER_NOT_FOUND',
+          status: HTTP_STATUS.NOT_FOUND
+        })
+      }
     }
+  }
 }
 
 export const verifiedUserValidator = (req: Request, res: Response, next: NextFunction) => {
-    const { verify } = req.decoded_authorization as TokenPayload
-    if (verify !== UserVerifyStatus.Verified) {
-        return next(
-            new ErrorWithStatus({
-                message: 'USERS_MESSAGES.USER_NOT_VERIFIED',
-                status: HTTP_STATUS.FORBIDDEN
-            })
-        )
-    }
-    next()
+  const { verify } = req.decoded_authorization as TokenPayload
+  if (verify !== UserVerifyStatus.Verified) {
+    return next(
+      new ErrorWithStatus({
+        message: 'USERS_MESSAGES.USER_NOT_VERIFIED',
+        status: HTTP_STATUS.FORBIDDEN
+      })
+    )
+  }
+  next()
 }
 
 export const followValidator = validate(
-    checkSchema(
-        {
-            followed_user_id: userIdSchema
-        },
-        ['body']
-    )
+  checkSchema(
+    {
+      followed_user_id: userIdSchema
+    },
+    ['body']
+  )
+)
+
+export const unfollowValidator = validate(
+  checkSchema(
+    {
+      user_id: userIdSchema
+    },
+    ['params']
+  )
 )
 
 const forgotPasswordTokenSchema: ParamSchema = {

@@ -1,26 +1,31 @@
 import { Router } from 'express'
 import {
-    accessTokenValidator,
-    emailVerifyTokenValidator, followValidator,
-    forgotPasswordValidator,
-    loginValidator,
-    refreshTokenValidator,
-    registerValidator,
-    resetPasswordValidator, verifiedUserValidator,
-    verifyForgotPasswordValidator
+  accessTokenValidator,
+  emailVerifyTokenValidator,
+  followValidator,
+  forgotPasswordValidator,
+  loginValidator,
+  refreshTokenValidator,
+  registerValidator,
+  resetPasswordValidator,
+  unfollowValidator,
+  verifiedUserValidator,
+  verifyForgotPasswordValidator
 } from '~/middlewares/users.middlewares'
 import {
-    loginController,
-    registerController,
-    logoutController,
-    getAccountController,
-    getUserController,
-    emailVerifyTokenController,
-    resendEmailVerifyTokenController,
-    forgotPasswordTokenController,
-    verifyForgotPasswordTokenController,
-    resetPasswordTokenController,
-    refreshTokenController, followController
+  loginController,
+  registerController,
+  logoutController,
+  getAccountController,
+  getUserController,
+  emailVerifyTokenController,
+  resendEmailVerifyTokenController,
+  forgotPasswordTokenController,
+  verifyForgotPasswordTokenController,
+  resetPasswordTokenController,
+  refreshTokenController,
+  followController,
+  unfollowController
 } from '~/controllers/users.controllers'
 import { wrapHandleError } from '~/utils/handlerError'
 
@@ -52,6 +57,13 @@ userRouter.post(
   // verifiedUserValidator,
   followValidator,
   wrapHandleError(followController)
+)
+userRouter.delete(
+  '/follow/:user_id',
+  accessTokenValidator,
+  // verifiedUserValidator,
+  unfollowValidator,
+  wrapHandleError(unfollowController)
 )
 
 export default userRouter

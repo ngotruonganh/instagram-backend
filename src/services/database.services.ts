@@ -3,7 +3,7 @@ import User from '~/models/schemas/User.schema'
 import { config } from 'dotenv'
 import RefreshToken from '~/models/schemas/RefreshToken.schema'
 import Post from '~/models/schemas/Post.schema'
-import Follower from "~/models/schemas/Follower.schema";
+import Follower from '~/models/schemas/Follower.schema'
 config()
 const uri = `mongodb+srv://${process.env.DB_USER_NAME}:${process.env.DB_PASSWORD}@${process.env.DB_NAME}.rgkqiy7.mongodb.net/?retryWrites=true&w=majority`
 

@@ -1,5 +1,6 @@
 import { JwtPayload } from 'jsonwebtoken'
 import { TokenType } from '~/constants/enums'
+import {ParamsDictionary} from "express-serve-static-core";
 
 export interface RegisterReqBody {
   name: string
@@ -14,7 +15,11 @@ export interface LogoutReqBody {
 }
 
 export interface FollowReqBody {
-    followed_user_id: string
+  followed_user_id: string
+}
+
+export interface UnfollowReqParams extends ParamsDictionary {
+    user_id: string
 }
 
 export interface TokenPayload extends JwtPayload {
