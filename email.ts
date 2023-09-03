@@ -64,7 +64,7 @@ const sendEmail = async (toAddress: string, subject: string, body: string) => {
   return sesClient.send(sendEmailCommand)
 }
 
-const verifyEmailTemplate = fs.readFileSync(path.resolve('src/templates/verify-email.html'), 'utf8')
+const verifyEmailTemplate = fs.readFileSync(path.resolve('src/templates/send-email.html'), 'utf8')
 
 export const verifyEmailWithTemplate = (
   toAddress: string,
