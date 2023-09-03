@@ -8,7 +8,7 @@ import databaseService from '~/services/database.services'
 import { hashPassword } from '~/utils/crypto'
 import { signToken } from '~/utils/jwt'
 import * as process from 'process'
-import { sendVerifyEmail } from '../../email'
+import { forgotPasswordWithTemplate, verifyEmailWithTemplate } from '../../email'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { ErrorWithStatus } from '~/models/Errors'
 import { NextFunction } from 'express'
@@ -94,11 +94,7 @@ class UsersService {
     await databaseService.refreshTokens.insertOne(
       new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token })
     )
-    await sendVerifyEmail(
-      payload.email,
-      'Verify email',
-      `<h1>Verify your account</h1> <a href="${process.env.PRODUCTION_URL}/api/v1/users/verify-email/${email_verify_token}">Verify</a>`
-    )
+    await verifyEmailWithTemplate(payload.email, payload.name, email_verify_token)
     console.log('Register verify email: ', email_verify_token)
     return {
       access_token,
@@ -168,7 +164,7 @@ class UsersService {
     const user = await databaseService.users.findOne({ email })
     return Boolean(user)
   }
-  async resendVerifyEmail(user_id: string) {
+  async resendVerifyEmail(user_id: string, user_name: string, user_email: string) {
     const resend_email_verify_token = await this.signVerifyEmailToken(user_id)
     console.log('Resend email verify: ', resend_email_verify_token)
     const user = await databaseService.users.updateOne(
@@ -182,9 +178,10 @@ class UsersService {
         }
       }
     )
+    await verifyEmailWithTemplate(user_email, user_name, resend_email_verify_token)
     return user
   }
-  async forgotPassword(user_id: string, email: string) {
+  async forgotPassword(user_id: string, email: string, name: string) {
     const forgot_password_token = await this.signForgotPasswordToken(user_id)
     console.log('Forgot password token: ', forgot_password_token)
     const user = await databaseService.users.updateOne(
@@ -198,9 +195,9 @@ class UsersService {
         }
       }
     )
-    await sendVerifyEmail(email, 'Forgot password', `<h1>${forgot_password_token}</h1>`)
+    await forgotPasswordWithTemplate(email, name, forgot_password_token)
     return {
-      message: 'Forgot password sent'
+      message: 'Email Forgot password send'
     }
   }
   async resetPassword(user_id: string, password: string) {

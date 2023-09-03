@@ -15,6 +15,7 @@ import usersService from '~/services/user.services'
 import databaseService from '~/services/database.services'
 import { UserVerifyStatus } from '~/constants/enums'
 import userServices from '~/services/user.services'
+import { verifyEmailWithTemplate } from '../../email'
 
 export const loginController = async (req: Request<ParamsDictionary, any, LoginReqBody>, res: Response) => {
   const user = req.user as User
@@ -64,7 +65,6 @@ export const getAccountController = async (req: Request, res: Response, next: Ne
 
 export const getFollowerController = async (req: Request, res: Response, next: NextFunction) => {
   const { user_id } = req.decoded_authorization as TokenPayload
-  console.log(user_id)
   const user = await usersService.follower(user_id)
   return res.json({
     message: 'Get follow success',
@@ -117,13 +117,13 @@ export const resendEmailVerifyTokenController = async (req: Request, res: Respon
       message: 'User verify before'
     })
   }
-  const result = await userServices.resendVerifyEmail(user_id)
+  const result = await userServices.resendVerifyEmail(user_id, user.name, user.email)
   return res.json(result)
 }
 
 export const forgotPasswordTokenController = async (req: Request, res: Response, next: NextFunction) => {
-  const { _id, email } = req.user as User
-  const result = await userServices.forgotPassword((_id as ObjectId).toString(), email)
+  const { _id, email, name } = req.user as User
+  const result = await userServices.forgotPassword((_id as ObjectId).toString(), email, name)
   console.log(result)
   return res.json({ message: 'send', result })
 }
